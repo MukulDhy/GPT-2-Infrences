@@ -1,13 +1,15 @@
-import torch
+import os
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-# Check CUDA availability
-print(torch.cuda.is_available())
+# Ensure output weights directory exists
+os.makedirs("./weights", exist_ok=True)
 
+model = GPT2LMHeadModel.from_pretrained("gpt2")
+for name, param in model.named_parameters():
+    print(name, tuple(param.shape))
+    values = param.detach().numpy().flatten()
+    with open(f"../weights/{name}.txt", "w") as f:
+        f.write(" ".join(str(v) for v in values))
 
-# Create tensor on GPU
-x = torch.randn(1000, 1000).cuda()
-
-# Perform matrix multiplication
-y = torch.matmul(x, x)
-
-print(y.device)
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+tokenizer.save_pretrained("./tokenizer")
